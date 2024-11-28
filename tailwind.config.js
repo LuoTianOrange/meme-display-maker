@@ -1,18 +1,19 @@
 const animate = require("tailwindcss-animate")
+const tailwindcssMotion = require("tailwindcss-motion")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   safelist: ["dark"],
   prefix: "",
-  
+
   content: [
     './pages/**/*.{js,jsx,vue}',
     './components/**/*.{js,jsx,vue}',
     './app/**/*.{js,jsx,vue}',
     './src/**/*.{js,jsx,vue}',
-	],
-  
+  ],
+
   theme: {
     container: {
       center: true,
@@ -89,5 +90,5 @@ module.exports = {
       },
     },
   },
-  plugins: [animate],
+  plugins: [animate, tailwindcssMotion],
 }

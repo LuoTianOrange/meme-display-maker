@@ -1,10 +1,10 @@
 <script setup>
-import index from '@/views/Home/index.vue'
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
   <div>
-    <index />
+    <RouterView></RouterView>
   </div>
 </template>
 
