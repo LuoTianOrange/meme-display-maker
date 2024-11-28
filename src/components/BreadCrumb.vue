@@ -14,7 +14,7 @@ import { Slash } from 'lucide-vue-next'
     <BreadcrumbList>
       <BreadcrumbItem>
         <BreadcrumbLink href="/">
-          Home
+          主页
         </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator>
