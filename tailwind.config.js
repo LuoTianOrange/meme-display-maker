@@ -1,5 +1,6 @@
 const animate = require("tailwindcss-animate")
 const tailwindcssMotion = require("tailwindcss-motion")
+const gradients = require("tailwindcss-gradients")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -90,5 +91,5 @@ module.exports = {
       },
     },
   },
-  plugins: [animate, tailwindcssMotion],
+  plugins: [animate, tailwindcssMotion,gradients],
 }

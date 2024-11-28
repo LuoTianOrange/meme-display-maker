@@ -22,7 +22,7 @@ import { Slash } from 'lucide-vue-next'
       </BreadcrumbSeparator>
       <BreadcrumbItem>
         <BreadcrumbLink href="/components">
-          Components
+          完成
         </BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>
