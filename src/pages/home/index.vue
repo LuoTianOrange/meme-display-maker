@@ -22,11 +22,12 @@
                 <div class="w-2/3 flex flex-col bg-white p-5 pb-10 h-full relative bg-cover"
                     :style="{ backgroundImage: `url(${background})` }">
                     <div class="f-c-c w-full absolute top-[150px] left-10">
-                        <div :data-content="MemeName" class="text-[60px] text-white font-[Maru] text drop-shadow-lg">
+                        <div :data-content="MemeName"
+                            class="text-[60px] text-transparent bg-clip-text bg-gradient-to-b from-sky-400 via-sky-300 to-sky-200 font-[Maru] text drop-shadow-lg">
                             {{ MemeName }}
                         </div>
                         <div class="flex flex-col top-5 relative">
-                            <div class="text-[20px] text-white font-[Maru] text drop-shadow-lg" data-content="表情包">表情包
+                            <div class="text-[20px] text-white font-[Maru]  text drop-shadow-lg" data-content="表情包">表情包
                             </div>
                             <div class="text-[20px] text-white font-[Maru] text drop-shadow-lg" data-content="第六弹">第六弹
                             </div>
@@ -89,12 +90,12 @@ const background = ref(bg)
     z-index: 0;
 }
 
-.text::after {
+/* .text::after {
     content: attr(data-content);
     -webkit-text-stroke: 8px #000;
     position: absolute;
     left: 0;
     top: 0;
     z-index: -1;
-}
+} */
 </style>
