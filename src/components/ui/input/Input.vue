@@ -21,6 +21,7 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const files = target.files ? Array.from(target.files) : null
+  console.log('Uploaded files:', files)
   emits('update:modelValue', files)
 }
 </script>
