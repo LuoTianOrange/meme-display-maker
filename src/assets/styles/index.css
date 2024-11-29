@@ -91,3 +91,10 @@ body {
   font-display: swap;
   src: url('../fonts/ZenMaruGothic-Bold.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'MaiYuan';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/荆南麦圆体0.500.ttf') format('truetype');
+}
