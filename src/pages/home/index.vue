@@ -17,7 +17,7 @@
         <!--控件-->
         <div class="w-1/3 flex-grow mr-4 bg-white p-5">
           <div class="grid w-full max-w-sm items-center gap-1.5">
-            <Label for="picture">上传图片</Label>
+            <div>上传图片</div>
             <Input
               accept="image/*"
               v-model="uploadedFiles"
@@ -30,6 +30,27 @@
               v-model="MemeName"
               placeholder="请输入表情包名称"
             ></el-input>
+            <div>标题表情包1</div>
+            <Input
+              accept="image/*"
+              @change="handleTitleFileChange($event, 'titlePhoto1')"
+              id="titlePhoto1"
+              type="file"
+            />
+            <div>标题表情包2</div>
+            <Input
+              accept="image/*"
+              @change="handleTitleFileChange($event, 'titlePhoto2')"
+              id="titlePhoto2"
+              type="file"
+            />
+            <div>标题表情包3</div>
+            <Input
+              accept="image/*"
+              @change="handleTitleFileChange($event, 'titlePhoto3')"
+              id="titlePhoto3"
+              type="file"
+            />
             <div>字体颜色/阴影颜色</div>
             <div class="flex flex-row">
               <el-color-picker
@@ -62,6 +83,14 @@
               <el-color-picker v-model="color1" :predefine="predefineColors" />
               <el-color-picker v-model="color2" :predefine="predefineColors" />
             </div>
+            <div>上传背景</div>
+            <Input
+              accept="image/*"
+              v-model="background"
+              @update:modelValue="background"
+              id="background"
+              type="file"
+            />
             <div>内背景</div>
             <el-color-picker
               v-model="insideBgColor"
@@ -87,19 +116,25 @@
           class="w-2/3 flex flex-col bg-white p-5 pb-10 h-full relative bg-cover"
           :style="backgroundStyle()"
         >
-          <img :src="qrcode" class="absolute top-5 left-5 w-[100px] h-[100px] bg-orange-500" />
+          <img
+            :src="qrcode"
+            class="absolute top-5 left-5 w-[100px] h-[100px] bg-orange-500"
+          />
           <!--顶部表情包-->
           <div class="absolute top-[30px] w-full f-c-c flex justify-center">
             <img
-              :src="photo1"
+              :src="titlePhoto1.url"
+              v-if="titlePhoto1"
               class="mt-3 max-h-[140px] overflow-hidden w-[140px] h-full object-cover -rotate-12 image-border"
             />
             <img
-              :src="photo2"
+              :src="titlePhoto2.url"
+              v-if="titlePhoto2"
               class="w-[160px] max-h-[160px] overflow-hidden h-full object-cover image-border"
             />
             <img
-              :src="photo3"
+              :src="titlePhoto3.url"
+              v-if="titlePhoto3"
               class="mt-3 max-h-[140px] overflow-hidden w-[140px] h-full object-cover rotate-12 image-border"
             />
           </div>
@@ -182,9 +217,9 @@ import html2canvas from 'html2canvas'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 
 import bg from '@/assets/photos/5de6de.jpg'
-import photo1 from '@/assets/photos/20.png'
-import photo2 from '@/assets/photos/08.png'
-import photo3 from '@/assets/photos/14.png'
+// import photo1 from '@/assets/photos/20.png'
+// import photo2 from '@/assets/photos/08.png'
+// import photo3 from '@/assets/photos/14.png'
 
 const uploadedFiles = ref([])
 const handleFileChange = (files) => {
@@ -202,6 +237,25 @@ const handleFileChange = (files) => {
     }
 }
 
+//处理标题表情包
+const handleTitleFileChange = (event, photoType) => {
+  const file = event.target.files[0]
+  if (file) {
+    const photo = {
+      name: file.name,
+      type: file.type,
+      url: URL.createObjectURL(file)
+    }
+    if (photoType === 'titlePhoto1') {
+      titlePhoto1.value = photo
+    } else if (photoType === 'titlePhoto2') {
+      titlePhoto2.value = photo
+    } else if (photoType === 'titlePhoto3') {
+      titlePhoto3.value = photo
+    }
+  }
+}
+
 const backgroundStyle = () => {
     if (useBgorColor.value) {
         return { backgroundImage: `url(${background.value})` };
@@ -216,6 +270,13 @@ const backgroundStyle = () => {
 
 //表情包名称
 const MemeName = ref('灯火橘Channel')
+//标题表情包1
+const titlePhoto1 = ref(null)
+//标题表情包2
+const titlePhoto2 = ref(null)
+//标题表情包3
+const titlePhoto3 = ref(null)
+
 //背景
 const useBgorColor = ref(false)
 const background = ref(bg)
