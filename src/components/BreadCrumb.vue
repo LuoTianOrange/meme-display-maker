@@ -13,16 +13,16 @@ import { Slash } from 'lucide-vue-next'
   <Breadcrumb>
     <BreadcrumbList>
       <BreadcrumbItem>
-        <BreadcrumbLink href="/">
-          主页
+        <BreadcrumbLink href="/theme1">
+          主题1
         </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator>
         <Slash />
       </BreadcrumbSeparator>
       <BreadcrumbItem>
-        <BreadcrumbLink href="/home/test">
-          完成
+        <BreadcrumbLink href="/theme2">
+          主题2
         </BreadcrumbLink>
       </BreadcrumbItem>
     </BreadcrumbList>

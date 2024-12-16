@@ -26,4 +26,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    port: 2333,
+    host: "0.0.0.0",
+  }
 })
