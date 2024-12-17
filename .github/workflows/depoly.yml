@@ -1,48 +1,26 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
 on:
-  # 每次推送到 `main` 分支时触发这个“工作流程”
-  # 如果你使用了别的分支名，请按需将 `main` 替换成你的分支名
   push:
     branches-ignore:
       - dev
-    
-  # 允许你在 GitHub 上的 Actions 标签中手动触发此“工作流程”
-  workflow_dispatch:
-
-# 允许 job 克隆 repo 并创建一个 page deployment
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout main
-        uses: actions/checkout@v2
-        with:
-          ref: main
-
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: "20"
-      - name: Install pagesnpm
-        run: npm install pnpm -g --registry=https://registry.npmmirror.com
-
-      - name: Build project
-        run: pnpm install --no-frozen-lockfile && pnpm build
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: npm i pnpm -g 
+      - run: pnpm install --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
