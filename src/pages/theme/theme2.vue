@@ -32,7 +32,7 @@
         />
         <div class="text-[20px] font-bold">补充信息</div>
         <div>表情包名称</div>
-        <el-input v-model="MemeName" placeholder="请输入表情包名称"></el-input>
+        <el-input v-model="MemeName" placeholder="请输入表情包名称" clearable></el-input>
         <div class="flex flex-row items-center">
           <div class="mr-3">背景颜色</div>
           <el-color-picker
@@ -93,8 +93,8 @@
       :opacity="watermarkConfig.opacity"
       :z-index="watermarkConfig.zIndex"
       :gap="watermarkConfig.gap"
-      :width="50"
-      :height="50"
+      :width="watermarkConfig.width"
+      :height="watermarkConfig.height"
     >
       <div
         ref="displaySection"

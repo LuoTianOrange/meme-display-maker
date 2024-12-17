@@ -44,32 +44,6 @@ const props = defineProps({
     }
 })
 
-const watermarkStyle = computed(() => {
-    const [gapX, gapY] = props.gap
-
-    const widthNum = props.width
-    const heightNum = props.height
-
-    // 计算背景尺寸，包括图片尺寸和间距
-    const backgroundSizeX = widthNum + gapX
-    const backgroundSizeY = heightNum + gapY
-
-    return {
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${props.image})`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: `${backgroundSizeX}px ${backgroundSizeY}px`,
-        backgroundPosition: `0 0`,
-        opacity: props.opacity,
-        pointerEvents: 'none',
-        zIndex: props.zIndex,
-    }
-})
-
 const getImageCount = () => {
   const cols = Math.ceil(window.innerWidth / (props.width + props.gap[0]))
   const rows = Math.ceil(window.innerHeight / (props.height + props.gap[1]))
