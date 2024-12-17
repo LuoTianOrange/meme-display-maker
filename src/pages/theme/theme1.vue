@@ -179,13 +179,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import { ref } from 'vue'
-import html2canvas from 'html2canvas'
-import { useQRCode } from '@vueuse/integrations/useQRCode'
 
-import bg from '@/assets/photos/5de6de.jpg'
-// import photo1 from '@/assets/photos/20.png'
-// import photo2 from '@/assets/photos/08.png'
-// import photo3 from '@/assets/photos/14.png'
+import { useQRCode } from '@vueuse/integrations/useQRCode'
 
 const uploadedFiles = ref([])
 const handleFileChange = (files) => {

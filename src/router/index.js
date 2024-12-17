@@ -11,7 +11,7 @@ const routes = [
         children: [
             {
                 path: '', // 默认子路由路径为空
-                redirect: 'theme1' // 重定向到默认子路由
+                redirect: 'theme2' // 重定向到默认子路由
             },
             {
                 path: 'theme1',
