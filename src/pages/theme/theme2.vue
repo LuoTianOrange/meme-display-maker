@@ -21,6 +21,7 @@
           @change="handleTitleFileChange($event, 'titlePhoto1')"
           id="titlePhoto1"
           type="file"
+          :multiple="false"
         />
         <div>标题表情包2</div>
         <Input
@@ -28,6 +29,7 @@
           @change="handleTitleFileChange($event, 'titlePhoto2')"
           id="titlePhoto2"
           type="file"
+          :multiple="false"
         />
         <div>表情包代数</div>
         <el-input
@@ -47,6 +49,7 @@
           @change="handleTitleFileChange($event, 'watermark')"
           id="watermark"
           type="file"
+          :multiple="false"
         />
         <div>开启水印</div>
         <el-switch v-model="enableWatermark" active-color="#13ce66" />
@@ -57,8 +60,10 @@
     </div>
     <!--展示-->
     <el-watermark
-      class="w-2/3 flex flex-col h-full relative watermark"
+      v-if="enableWatermark"
+      class="w-2/3 flex flex-col h-full relative overflow-hidden"
       :image="watermarkConfig.image"
+      :opacity="0.05"
       :z-index="watermarkConfig.zIndex"
       :rotate="watermarkConfig.rotate"
       :gap="watermarkConfig.gap"
@@ -89,35 +94,93 @@
         </div>
         <!--表情包展示-->
         <div class="bg-white w-full grid grid-cols-4 gap-4 p-4 mb-5">
-          <div class="w-full" v-for="file in uploadedFiles" :key="file.name">
-            <img
-              v-if="file.type && file.type.startsWith('image/')"
-              :src="file.url"
-              :alt="file.name"
-              class="w-full h-auto object-cover image-border"
-            />
-            <div v-else>{{ file.name }}</div>
-          </div>
+          <template v-if="uploadedFiles.length > 0">
+            <div v-for="file in uploadedFiles" :key="file.name" class="w-full">
+              <img
+                v-if="file.type && file.type.startsWith('image/')"
+                :src="file.url"
+                :alt="file.name"
+                class="w-full h-auto object-cover border-2 border-gray-300 rounded-lg"
+              />
+              <div v-else class="text-center">{{ file.name }}</div>
+            </div>
+          </template>
+          <template v-else>
+            <div
+              v-for="i in 16"
+              :key="i"
+              class="flex items-center justify-center w-full aspect-square bg-gray-200 text-gray-600 text-2xl border-2 border-dashed border-gray-300 rounded-lg"
+            >
+              {{ i }}
+            </div>
+          </template>
         </div>
       </div>
     </el-watermark>
+    <div class="w-2/3 flex flex-col h-full relative" v-else>
+      <div
+        ref="displaySection"
+        class="w-full min-h-[600px]"
+        :style="{ backgroundColor: BgColor }"
+      >
+        <!--顶部-->
+        <div class="flex flex-row justify-between items-center">
+          <img
+            v-if="titlePhoto1"
+            :src="titlePhoto1.url"
+            class="w-[150px] h-[150px]"
+          />
+          <div class="text-[50px] font-bold ml-3 text-[rgba(255,255,255,0.9)]">
+            {{ MemeName }}
+          </div>
+          <img
+            v-if="titlePhoto2"
+            :src="titlePhoto2.url"
+            class="w-[150px] h-[150px]"
+          />
+        </div>
+        <!--表情包展示-->
+        <div class="bg-white w-full grid grid-cols-4 gap-4 p-4 mb-5">
+          <template v-if="uploadedFiles.length > 0">
+            <div v-for="file in uploadedFiles" :key="file.name" class="w-full">
+              <img
+                v-if="file.type && file.type.startsWith('image/')"
+                :src="file.url"
+                :alt="file.name"
+                class="w-full h-auto object-cover"
+              />
+              <div v-else class="text-center">{{ file.name }}</div>
+            </div>
+          </template>
+          <template v-else>
+            <div
+              v-for="i in 16"
+              :key="i"
+              class="flex items-center justify-center w-full aspect-square bg-gray-200 text-gray-600 text-2xl border-2 border-dashed border-gray-300 rounded-lg"
+            >
+              {{ i }}
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="js" setup>
-import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import BreadCrumb from '@/components/BreadCrumb.vue';
-import { ref,reactive } from 'vue'
+import { ref,reactive,computed } from 'vue'
 import html2canvas from 'html2canvas'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
+import WaterMark from '@/components/WaterMark.vue';
 
 const watermarkConfig = reactive({
   image: '',
   zIndex: 10,
   rotate: -22,
-  gap: [100, 100],
+  gap: [20 , 20],
   offset: [],
 })
 
@@ -152,8 +215,6 @@ const handleTitleFileChange = (event, photoType) => {
       titlePhoto2.value = photo
     } else if (photoType === 'watermark') {
       watermarkConfig.image = photo.url // 直接赋值URL字符串
-      console.log(watermarkConfig);
-
     }
   }
 }
@@ -206,15 +267,5 @@ const downloadImage = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.watermark {
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* 使水印不影响鼠标事件 */
 }
 </style>
