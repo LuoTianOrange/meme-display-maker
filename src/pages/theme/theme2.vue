@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex h-full min-h-[1200px] flex-row w-[1100px] flex-grow mx-5 mt-5 rounded-md"
+    class="flex h-full flex-row w-[1100px] flex-grow mx-5 mt-5 rounded-md"
   >
     <!--控件-->
-    <div class="w-1/3 flex-grow mr-4 bg-white p-5">
+    <div class="w-1/3 h-full flex-grow mr-4 bg-white p-5 sticky">
       <div class="grid w-full max-w-sm items-center gap-1.5">
         <div class="text-[20px] font-bold">上传文件</div>
         <div>上传图片</div>
