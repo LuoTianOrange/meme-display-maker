@@ -1,7 +1,7 @@
 <template>
   <div class="watermark-wrapper">
     <slot></slot>
-    <div class="watermark-container">
+    <div class="watermark-container" v-if="imageCount > 0 && image">
       <img
         v-for="n in imageCount"
         :key="n"
