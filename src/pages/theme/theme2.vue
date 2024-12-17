@@ -5,6 +5,7 @@
     <!--控件-->
     <div class="w-1/3 flex-grow mr-4 bg-white p-5">
       <div class="grid w-full max-w-sm items-center gap-1.5">
+        <div class="text-[20px] font-bold">上传文件</div>
         <div>上传图片</div>
         <Input
           accept="image/*"
@@ -13,8 +14,6 @@
           id="picture"
           type="file"
         />
-        <div>表情包名称</div>
-        <el-input v-model="MemeName" placeholder="请输入表情包名称"></el-input>
         <div>标题表情包1</div>
         <Input
           accept="image/*"
@@ -31,18 +30,31 @@
           type="file"
           :multiple="false"
         />
-        <div>表情包代数</div>
-        <el-input
-          v-model="MemeVersion"
-          placeholder="请输入表情包代数"
-        ></el-input>
-        <div>背景颜色</div>
-        <el-color-picker
-          v-model="BgColor"
-          show-alpha
-          :predefine="predefineColors"
-        />
-        <div>水印</div>
+        <div class="text-[20px] font-bold">补充信息</div>
+        <div>表情包名称</div>
+        <el-input v-model="MemeName" placeholder="请输入表情包名称"></el-input>
+        <div class="flex flex-row items-center">
+          <div class="mr-3">背景颜色</div>
+          <el-color-picker
+          class="mr-3"
+            v-model="BgColor"
+            show-alpha
+            :predefine="predefineColors"
+          />
+          <div class="mr-3">文字颜色</div>
+          <el-color-picker
+            v-model="TextColor"
+            show-alpha
+            :predefine="predefineColors"
+          />
+        </div>
+        <div>文字大小</div>
+        <el-slider
+          v-model="TextSize"
+          :min="1"
+          :max="50"
+        ></el-slider>
+        <div class="text-[20px] font-bold">水印</div>
         <div>上传水印</div>
         <Input
           accept="image/*"
@@ -53,21 +65,34 @@
         />
         <div>开启水印</div>
         <el-switch v-model="enableWatermark" active-color="#13ce66" />
-        <div>二维码</div>
+        <div v-if="enableWatermark" class="flex flex-col">
+            <div>水印间距</div>
+            X：<el-slider
+            v-model="watermarkConfig.gap[0]"
+            ></el-slider>
+            Y：<el-slider
+            v-model="watermarkConfig.gap[1]"
+            ></el-slider>
+            <div>水印大小</div>
+            宽度：<el-slider v-model="watermarkConfig.width" :min="1" :max="100"></el-slider>
+            高度：<el-slider v-model="watermarkConfig.height" :min="1" :max="100"></el-slider>
+            <div>不透明度</div>
+            <el-slider v-model="watermarkConfig.opacity" :min="0" :max="1" :step="0.01"></el-slider>
+        </div>
+        <div class="text-[20px] font-bold">二维码</div>
+        <div>二维码链接</div>
         <el-input v-model="QRtext" placeholder="请输入二维码链接"></el-input>
       </div>
       <el-button class="mt-5" @click="downloadImage">生成展示图</el-button>
     </div>
     <!--展示-->
-    <el-watermark
+    <WaterMark
       v-if="enableWatermark"
       class="w-2/3 flex flex-col h-full relative overflow-hidden"
       :image="watermarkConfig.image"
-      :opacity="0.05"
+      :opacity="watermarkConfig.opacity"
       :z-index="watermarkConfig.zIndex"
-      :rotate="watermarkConfig.rotate"
       :gap="watermarkConfig.gap"
-      :offset="watermarkConfig.offset"
       :width="50"
       :height="50"
     >
@@ -83,7 +108,10 @@
             :src="titlePhoto1.url"
             class="w-[150px] h-[150px]"
           />
-          <div class="text-[50px] font-bold ml-3 text-[rgba(255,255,255,0.9)]">
+          <div
+            class="font-bold ml-3"
+            :style="{ color: TextColor, fontSize: TextSize + 'px' }"
+          >
             {{ MemeName }}
           </div>
           <img
@@ -116,7 +144,7 @@
           </template>
         </div>
       </div>
-    </el-watermark>
+    </WaterMark>
     <div class="w-2/3 flex flex-col h-full relative" v-else>
       <div
         ref="displaySection"
@@ -130,7 +158,10 @@
             :src="titlePhoto1.url"
             class="w-[150px] h-[150px]"
           />
-          <div class="text-[50px] font-bold ml-3 text-[rgba(255,255,255,0.9)]">
+          <div
+            class="font-bold ml-3"
+            :style="{ color: TextColor, fontSize: TextSize + 'px' }"
+          >
             {{ MemeName }}
           </div>
           <img
@@ -180,8 +211,10 @@ const watermarkConfig = reactive({
   image: '',
   zIndex: 10,
   rotate: -22,
-  gap: [20 , 20],
-  offset: [],
+  gap: [100 , 100],
+  width: 50,
+  height: 50,
+  opacity: 0.1
 })
 
 const uploadedFiles = ref([])
@@ -219,7 +252,7 @@ const handleTitleFileChange = (event, photoType) => {
   }
 }
 //表情包名称
-const MemeName = ref('灯火橘Channel')
+const MemeName = ref('表情包名称')
 //标题表情包1
 const titlePhoto1 = ref(null)
 //标题表情包2
@@ -227,7 +260,11 @@ const titlePhoto2 = ref(null)
 //水印
 const enableWatermark = ref(false)
 //背景颜色
-const BgColor = ref('rgba(255, 234, 191, 0.6)')
+const BgColor = ref('rgba(255, 234, 191, 0.87)')
+//文字颜色
+const TextColor = ref('rgba(255, 69, 0, 0.87)')
+//文字大小
+const TextSize = ref(30)
 //预定义颜色
 const predefineColors = ref([
     '#ff4500',
@@ -245,8 +282,7 @@ const predefineColors = ref([
     'hsla(209, 100%, 56%, 0.73)',
     '#c7158577',
 ])
-//表情包代数
-const MemeVersion = ref('第十一弹')
+
 //二维码
 const QRtext = ref('https://zb.vip.qq.com/hybrid/emoticonmall/detail?id=240956')
 const qrcode = useQRCode(QRtext)
