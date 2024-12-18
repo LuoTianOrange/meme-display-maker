@@ -14,6 +14,16 @@
 
 
 
+## Todo
+
+- [ ] 移动端响应式设计
+- [ ] 自定义展示图大小
+- [ ] 可以设置两行标题文字
+- [ ] 可以选择字体
+- [ ] 移植到橘橘博客
+
+
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=LuoTianOrange/skeb-card&type=Date)](https://star-history.com/#noodle-run/noodle&Date)
