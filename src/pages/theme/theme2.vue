@@ -26,6 +26,7 @@
         <div>标题表情包1</div>
         <div class="w-full flex flex-row flex-nowrap items-center">
           <Input
+            ref="photoInput1"
             class="w-full"
             accept="image/*"
             @change="handleTitleFileChange($event, 'titlePhoto1')"
@@ -33,13 +34,14 @@
             type="file"
             :multiple="false"
           />
-          <el-button class="ml-2" v-if="titlePhoto1" @click="titlePhoto1 = ''"
+          <el-button class="ml-2" v-if="titlePhoto1" @click="cleanPhoto1"
             >删除</el-button
           >
         </div>
         <div>标题表情包2</div>
         <div class="w-full flex flex-row flex-nowrap items-center">
           <Input
+            ref="photoInput2"
             class="w-full"
             accept="image/*"
             @change="handleTitleFileChange($event, 'titlePhoto2')"
@@ -47,7 +49,7 @@
             type="file"
             :multiple="false"
           />
-          <el-button class="ml-2" v-if="titlePhoto2" @click="titlePhoto2 = ''"
+          <el-button class="ml-2" v-if="titlePhoto2" @click="cleanPhoto2"
             >删除</el-button
           >
         </div>
@@ -271,6 +273,8 @@ const watermarkConfig = reactive({
   opacity: 0.5
 })
 let fileInput=ref(null)
+let photoInput1=ref(null)
+let photoInput2=ref(null)
 const uploadedFiles = ref([])
 const handleFileChange = (e) => {
   let files=Array.from(e.target.files)
@@ -290,6 +294,14 @@ const handleFileChange = (e) => {
 const cleanFiles = ()=>{
   uploadedFiles.value=[]
   fileInput.value.input.value=''//清空input已选择的文件
+}
+const cleanPhoto1 = ()=>{
+  titlePhoto1.value = ''
+  photoInput1.value.input.value=''//清空input已选择的文件
+}
+const cleanPhoto2 = ()=>{
+  titlePhoto2.value = ''
+  photoInput2.value.input.value=''//清空input已选择的文件
 }
 
 // 处理上传的标题图片和水印
