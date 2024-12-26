@@ -9,16 +9,17 @@
         <div>上传图片</div>
         <div class="w-full flex flex-row flex-nowrap items-center">
           <Input
+            ref="fileInput"
             accept="image/*"
-            v-model="uploadedFiles"
-            @update:modelValue="handleFileChange"
+            @change="handleFileChange"
             id="picture"
             type="file"
+            multiple
           />
           <el-button
             class="ml-2"
             v-if="uploadedFiles.length > 0"
-            @click="uploadedFiles = []"
+            @click="cleanFiles"
             >删除</el-button
           >
         </div>
@@ -269,9 +270,10 @@ const watermarkConfig = reactive({
   height: 70,
   opacity: 0.5
 })
-
+let fileInput=ref(null)
 const uploadedFiles = ref([])
-const handleFileChange = (files) => {
+const handleFileChange = (e) => {
+  let files=Array.from(e.target.files)
   if (files) {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/gif']
     uploadedFiles.value = files
@@ -284,6 +286,10 @@ const handleFileChange = (files) => {
   } else {
     uploadedFiles.value = []
   }
+}
+const cleanFiles = ()=>{
+  uploadedFiles.value=[]
+  fileInput.value.input.value=''//清空input已选择的文件
 }
 
 // 处理上传的标题图片和水印
