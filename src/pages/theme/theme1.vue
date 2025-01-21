@@ -1,4 +1,5 @@
 <template>
+  <!--弃用的展示图主题-->
   <div
     class="flex h-full min-h-[1200px] flex-row w-[1100px] flex-grow mx-5 mb-5 rounded-md"
   >
