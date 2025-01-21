@@ -16,6 +16,7 @@
 
 <script lang="js" setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 
 const props = defineProps({
     image: {
@@ -41,21 +42,36 @@ const props = defineProps({
     zIndex: {
         type: Number,
         default: 10
+    },
+    angle: {
+        type: Number,
+        default: 0
     }
 })
 
+const { width: windowWidth, height: windowHeight } = useWindowSize()
+
+const cols = computed(() => {
+  return Math.ceil(windowWidth.value / (props.width + props.gap[0]))
+})
+
+
 const getImageCount = () => {
-  const cols = Math.ceil(window.innerWidth / (props.width + props.gap[0]))
-  const rows = Math.ceil(window.innerHeight / (props.height + props.gap[1]))
+  const cols = Math.ceil(windowWidth.value / (props.width + props.gap[0]))
+  const rows = Math.ceil(windowHeight.value / (props.height + props.gap[1]))
   return cols * rows
 }
 
 const imageCount = computed(getImageCount)
 
 const watermarkImage = (n) => {
-  const cols = Math.ceil(window.innerWidth / (props.width + props.gap[0]))
-  const row = Math.floor(n / cols)
-  const col = n % cols
+  // const cols = Math.ceil(window.innerWidth / (props.width + props.gap[0]))
+  // const row = Math.floor(n / cols)
+  // const col = n % cols
+
+  const currentCols = cols.value
+  const row = Math.floor(n / currentCols)
+  const col = n % currentCols
   return {
     position: 'absolute',
     top: `${row * (props.height + props.gap[1])}px`,
@@ -65,20 +81,21 @@ const watermarkImage = (n) => {
     opacity: props.opacity,
     pointerEvents: 'none',
     zIndex: props.zIndex,
+    transform: `rotate(${props.angle}deg)`
   }
 }
 
-const handleResize = () => {
-  imageCount.value = getImageCount()
-}
+// const handleResize = () => {
+//   imageCount.value = getImageCount()
+// }
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-})
+// onMounted(() => {
+//   window.addEventListener('resize', handleResize)
+// })
 
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
+// onBeforeUnmount(() => {
+//   window.removeEventListener('resize', handleResize)
+// })
 </script>
 
 <style scoped>

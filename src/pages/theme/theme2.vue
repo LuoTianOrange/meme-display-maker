@@ -47,6 +47,8 @@
           高度：<el-slider v-model="watermarkConfig.height" :min="1" :max="100"></el-slider>
           <div>不透明度</div>
           <el-slider v-model="watermarkConfig.opacity" :min="0" :max="1" :step="0.01"></el-slider>
+          <div>水印角度</div>
+          <el-slider v-model="watermarkConfig.angle" :min="-180" :max="180"></el-slider>
         </div>
         <div class="text-[20px] font-bold">二维码</div>
         <div>开启二维码</div>
@@ -59,11 +61,11 @@
       <el-button class="mt-5" @click="downloadImage">生成展示图</el-button>
     </div>
     <!--展示-->
-    <div class="lg:w-2/3 w-full  h-full" id="display-section">
+    <div class="lg:w-2/3 w-full h-full" id="display-section">
       <WaterMark v-if="enableWatermark" class="w-full flex flex-col h-full relative overflow-hidden"
         :image="watermarkConfig.image" :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex"
-        :gap="watermarkConfig.gap" :width="watermarkConfig.width" :height="watermarkConfig.height">
-        <div ref="displaySection" class="w-full min-h-[600px]" :style="{ backgroundColor: BgColor }">
+        :gap="watermarkConfig.gap" :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
+        <div ref="displaySection" class="w-full min-h-[200px]" :style="{ backgroundColor: BgColor }">
           <!--顶部-->
           <div class="flex flex-row justify-between items-center">
             <img v-if="titlePhoto1" :src="titlePhoto1.url" class="w-[150px] h-[150px]" />
@@ -92,7 +94,7 @@
         </div>
       </WaterMark>
       <div class="w-full flex flex-col h-full relative" v-else>
-        <div ref="displaySection" class="w-full min-h-[600px]" :style="{ backgroundColor: BgColor }">
+        <div ref="displaySection" class="w-full min-h-[200px]" :style="{ backgroundColor: BgColor }">
           <!--顶部-->
           <div class="flex flex-row justify-between items-center">
             <img v-if="titlePhoto1" :src="titlePhoto1.url" class="w-[150px] h-[150px]" />
@@ -144,7 +146,8 @@ const watermarkConfig = reactive({
   gap: [20, 20],
   width: 70,
   height: 70,
-  opacity: 0.5
+  opacity: 0.5,
+  angle: 0
 })
 let fileInput = ref(null)
 let photoInput1 = ref(null)
