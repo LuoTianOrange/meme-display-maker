@@ -130,7 +130,7 @@ import { toast } from 'vue-sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import BreadCrumb from '@/components/BreadCrumb.vue';
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import WaterMark from '@/components/WaterMark.vue';
@@ -233,7 +233,7 @@ const predefineColors = ref([
 
 //二维码
 const QRtext = ref('https://zb.vip.qq.com/hybrid/emoticonmall/detail?id=240956')
-const qrcode = useQRCode(QRtext.value)
+const qrcode = useQRCode(QRtext)
 
 const enableQRcode = ref(false)
 //保存图片
