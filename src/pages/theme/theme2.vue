@@ -24,14 +24,36 @@
         <div class="text-[20px] font-bold">补充信息</div>
         <div>表情包名称</div>
         <el-input v-model="MemeName" placeholder="请输入表情包名称" clearable></el-input>
+        <div>画师名称</div>
+        <el-input v-model="ArtistName" placeholder="请输入画师名称" clearable></el-input>
+        
+        <div>背景颜色</div>
+        <div class="grid grid-cols-5 gap-2 mb-3">
+          <div v-for="(preset, index) in presetBackgroundColors" :key="preset.name"
+            @click="selectBackgroundColor(preset, index)" :class="[
+              'w-12 h-12 rounded-lg cursor-pointer border-2 transition-all duration-200 hover:scale-110 relative group',
+              preset.bgClass,
+              selectedBackgroundIndex === index ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-gray-400'
+            ]" :title="preset.name">
+            <!-- 选中状态的勾号 -->
+            <div v-if="selectedBackgroundIndex === index"
+              class="absolute inset-0 flex items-center justify-center text-white text-lg font-bold drop-shadow-lg">
+              ✓
+            </div>
+            <!-- 悬停时显示颜色名称 -->
+            <div
+              class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+              {{ preset.name }}
+            </div>
+          </div>
+        </div>
+        
         <div class="flex flex-row items-center">
-          <div class="mr-3">背景颜色</div>
-          <el-color-picker class="mr-3" v-model="BgColor" show-alpha :predefine="predefineColors" />
           <div class="mr-3">文字颜色</div>
           <el-color-picker v-model="TextColor" show-alpha :predefine="predefineColors" />
         </div>
         <div>文字大小</div>
-        <el-slider v-model="TextSize" :min="1" :max="50"></el-slider>
+        <el-slider v-model="TextSize" :min="1" :max="120"></el-slider>
         <div class="text-[20px] font-bold">水印</div>
         <div>开启水印</div>
         <el-switch v-model="enableWatermark" active-color="#13ce66" />
@@ -64,63 +86,37 @@
     <div class="lg:w-2/3 w-full h-full" id="display-section">
       <WaterMark v-if="enableWatermark" class="w-full flex flex-col h-full relative overflow-hidden"
         :image="watermarkConfig.image" :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex"
-        :gap="watermarkConfig.gap" :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
-        <div ref="displaySection" class="w-full min-h-[200px]" :style="{ backgroundColor: BgColor }">
-          <!--顶部-->
-          <div class="flex flex-row justify-between items-center">
-            <img v-if="titlePhoto1" :src="titlePhoto1.url" class="w-[150px] h-[150px]" />
-            <div class="font-bold ml-3" :style="{ color: TextColor, fontSize: TextSize + 'px' }">
-              {{ MemeName }}
-            </div>
-            <img v-if="titlePhoto2" :src="titlePhoto2.url" class="w-[150px] h-[150px]" />
-            <img v-else-if="enableQRcode" :src="qrcode" class="w-[150px] h-[150px]" />
-          </div>
-          <!--表情包展示-->
-          <div class="bg-white w-full grid grid-cols-4 gap-4 p-4 mb-5">
-            <template v-if="uploadedFiles.length > 0">
-              <div v-for="file in uploadedFiles" :key="file.name" class="w-full">
-                <img v-if="file.type && file.type.startsWith('image/')" :src="file.url" :alt="file.name"
-                  class="w-full h-auto object-cover" />
-                <div v-else class="text-center">{{ file.name }}</div>
-              </div>
-            </template>
-            <template v-else>
-              <div v-for="i in 16" :key="i"
-                class="flex items-center justify-center w-full aspect-square bg-gray-200 text-gray-600 text-2xl border-2 border-dashed border-gray-300 rounded-lg">
-                {{ i }}
-              </div>
-            </template>
-          </div>
-        </div>
+        :gap="watermarkConfig.gap" :width="watermarkConfig.width" :height="watermarkConfig.height" 
+        :angle="watermarkConfig.angle">
+        <DisplayContent 
+          ref="displayContentRef"
+          :uploadedFiles="uploadedFiles"
+          :titlePhoto1="titlePhoto1"
+          :titlePhoto2="titlePhoto2"
+          :MemeName="MemeName"
+          :ArtistName="ArtistName"
+          :TextColor="TextColor"
+          :TextSize="TextSize"
+          :enableQRcode="enableQRcode"
+          :QRtext="QRtext"
+          :backgroundConfig="backgroundConfig"
+        />
       </WaterMark>
+      
       <div class="w-full flex flex-col h-full relative" v-else>
-        <div ref="displaySection" class="w-full min-h-[200px]" :style="{ backgroundColor: BgColor }">
-          <!--顶部-->
-          <div class="flex flex-row justify-between items-center">
-            <img v-if="titlePhoto1" :src="titlePhoto1.url" class="w-[150px] h-[150px]" />
-            <div class="font-bold ml-3" :style="{ color: TextColor, fontSize: TextSize + 'px' }">
-              {{ MemeName }}
-            </div>
-            <img v-if="titlePhoto2" :src="titlePhoto2.url" class="w-[150px] h-[150px]" />
-            <img v-else-if="enableQRcode" :src="qrcode" class="w-[150px] h-[150px]" />
-          </div>
-          <!--表情包展示-->
-          <div class="bg-white w-full grid grid-cols-4 gap-4 p-4 mb-5">
-            <template v-if="uploadedFiles.length > 0">
-              <div v-for="file in uploadedFiles" :key="file.name" class="w-full">
-                <img v-if="file.type && file.type.startsWith('image/')" :src="file.url" :alt="file.name"
-                  class="w-full h-auto object-cover" />
-                <div v-else class="text-center">{{ file.name }}</div>
-              </div>
-            </template>
-            <template v-else>
-              <div v-for="i in 16" :key="i"
-                class="flex items-center justify-center w-full aspect-square bg-gray-200 text-gray-600 text-2xl border-2 border-dashed border-gray-300 rounded-lg">
-                {{ i }}
-              </div>
-            </template>
-          </div>
-        </div>
+        <DisplayContent 
+          ref="displayContentRef"
+          :uploadedFiles="uploadedFiles"
+          :titlePhoto1="titlePhoto1"
+          :titlePhoto2="titlePhoto2"
+          :MemeName="MemeName"
+          :ArtistName="ArtistName"
+          :TextColor="TextColor"
+          :TextSize="TextSize"
+          :enableQRcode="enableQRcode"
+          :QRtext="QRtext"
+          :backgroundConfig="backgroundConfig"
+        />
       </div>
     </div>
   </div>
@@ -131,53 +127,83 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import { ref, reactive, computed, watchEffect } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMemeStore } from '@/stores/meme'
 import { useWindowSize } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import WaterMark from '@/components/WaterMark.vue';
+import DisplayContent from '@/components/DisplayContent.vue';
 import { toPng } from 'html-to-image';
 
 const { width, height } = useWindowSize()
 
-//水印配置
-const watermarkConfig = reactive({
-  image: '',
-  zIndex: 10,
-  rotate: -22,
-  gap: [20, 20],
-  width: 70,
-  height: 70,
-  opacity: 0.5,
-  angle: 0
+// 使用共享的store
+const memeStore = useMemeStore()
+
+// 从store中获取响应式数据
+const {
+  uploadedFiles,
+  titlePhoto1,
+  titlePhoto2,
+  memeName: MemeName,
+  artistName: ArtistName,
+  textColor: TextColor,
+  textSize: TextSize,
+  enableWatermark,
+  watermarkConfig,
+  enableQRcode,
+  qrText: QRtext,
+  predefineColors,
+  selectedBackgroundIndex,
+  presetBackgroundColors
+} = storeToRefs(memeStore)
+
+// 根据当前背景颜色获取对应的 Tailwind 类配置
+const backgroundConfig = computed(() => {
+  // 直接使用 store 中当前选择的背景配置
+  const currentConfig = presetBackgroundColors.value[selectedBackgroundIndex.value]
+  return currentConfig || presetBackgroundColors.value[0]
 })
+
 let fileInput = ref(null)
 let photoInput1 = ref(null)
 let photoInput2 = ref(null)
-const uploadedFiles = ref([])
+
+// 选择背景颜色
+const selectBackgroundColor = (preset, index) => {
+  // 只更新背景配置索引
+  memeStore.setBackgroundIndex(index)
+}
+
 const handleFileChange = (e) => {
   let files = Array.from(e.target.files)
   if (files) {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/gif']
-    uploadedFiles.value = files
+    const processedFiles = files
       .filter(file => allowedTypes.includes(file.type))
       .map(file => ({
         name: file.name,
         type: file.type,
         url: URL.createObjectURL(file)
       }))
+    memeStore.setUploadedFiles(processedFiles)
   } else {
-    uploadedFiles.value = []
+    memeStore.clearUploadedFiles()
   }
 }
+
 const cleanFiles = () => {
-  uploadedFiles.value = []
+  memeStore.clearUploadedFiles()
   fileInput.value.input.value = ''//清空input已选择的文件
 }
+
 const cleanPhoto1 = () => {
-  titlePhoto1.value = ''
+  memeStore.clearTitlePhoto('titlePhoto1')
   photoInput1.value.input.value = ''//清空input已选择的文件
 }
+
 const cleanPhoto2 = () => {
-  titlePhoto2.value = ''
+  memeStore.clearTitlePhoto('titlePhoto2')
   photoInput2.value.input.value = ''//清空input已选择的文件
 }
 
@@ -191,53 +217,17 @@ const handleTitleFileChange = (event, photoType) => {
       url: URL.createObjectURL(file)
     }
     if (photoType === 'titlePhoto1') {
-      titlePhoto1.value = photo
+      memeStore.setTitlePhoto('titlePhoto1', photo)
     } else if (photoType === 'titlePhoto2') {
-      titlePhoto2.value = photo
+      memeStore.setTitlePhoto('titlePhoto2', photo)
     } else if (photoType === 'watermark') {
-      watermarkConfig.image = photo.url // 直接赋值URL字符串
+      memeStore.setWatermarkImage(photo.url) // 直接赋值URL字符串
     }
   }
 }
-//表情包名称
-const MemeName = ref('表情包名称')
-//标题表情包1
-const titlePhoto1 = ref(null)
-//标题表情包2
-const titlePhoto2 = ref(null)
-//水印
-const enableWatermark = ref(false)
-//背景颜色
-const BgColor = ref('rgba(253, 206, 113, 1)')
-//文字颜色
-const TextColor = ref('rgba(255, 255, 255, 0.80)')
-//文字大小
-const TextSize = ref(30)
-//预定义颜色
-const predefineColors = ref([
-  '#ff4500',
-  '#ff8c00',
-  '#ffd700',
-  '#90ee90',
-  '#00ced1',
-  '#1e90ff',
-  '#c71585',
-  'rgba(255, 69, 0, 0.68)',
-  'rgb(255, 120, 0)',
-  'hsv(51, 100, 98)',
-  'hsva(120, 40, 94, 0.5)',
-  'hsl(181, 100%, 37%)',
-  'hsla(209, 100%, 56%, 0.73)',
-  '#c7158577',
-])
 
-//二维码
-const QRtext = ref('https://zb.vip.qq.com/hybrid/emoticonmall/detail?id=240956')
-const qrcode = useQRCode(QRtext)
-
-const enableQRcode = ref(false)
 //保存图片
-const displaySection = ref(null);
+const displayContentRef = ref(null);
 
 const downloadImage = () => {
   const node = document.getElementById('display-section')

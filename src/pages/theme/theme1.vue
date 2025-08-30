@@ -1,205 +1,194 @@
 <template>
-  <!--弃用的展示图主题-->
-  <div
-    class="flex h-full min-h-[1200px] flex-row w-[1100px] flex-grow mx-5 mb-5 rounded-md"
-  >
+  <div class="flex h-full lg:flex-row flex-col-reverse max-w-[1100px] w-full flex-grow m-5 rounded-md">
     <!--控件-->
-    <div class="w-1/3 flex-grow mr-4 bg-white p-5">
+    <div class="lg:w-1/3 w-full h-full flex-grow lg:mr-4 lg:mt-0 mt-4 bg-white p-5 sticky">
       <div class="grid w-full max-w-sm items-center gap-1.5">
+        <div class="text-[20px] font-bold">上传文件</div>
         <div>上传图片</div>
-        <Input
-          accept="image/*"
-          v-model="uploadedFiles"
-          @update:modelValue="handleFileChange"
-          id="picture"
-          type="file"
-        />
+        <div class="w-full flex flex-row flex-nowrap items-center">
+          <Input ref="fileInput" accept="image/*" @change="handleFileChange" id="picture" type="file" multiple />
+          <el-button class="ml-2" v-if="uploadedFiles.length > 0" @click="cleanFiles">删除</el-button>
+        </div>
+        <div>标题表情包</div>
+        <div class="w-full flex flex-row flex-nowrap items-center">
+          <Input ref="photoInput1" class="w-full" accept="image/*"
+            @change="handleTitleFileChange($event, 'titlePhoto1')" id="titlePhoto1" type="file" :multiple="false" />
+          <el-button class="ml-2" v-if="titlePhoto1" @click="cleanPhoto1">删除</el-button>
+        </div>
+        <!-- <div>标题表情包2</div>
+        <div class="w-full flex flex-row flex-nowrap items-center">
+          <Input ref="photoInput2" class="w-full" accept="image/*"
+            @change="handleTitleFileChange($event, 'titlePhoto2')" id="titlePhoto2" type="file" :multiple="false" />
+          <el-button class="ml-2" v-if="titlePhoto2" @click="cleanPhoto2">删除</el-button>
+        </div> -->
+        <div class="text-[20px] font-bold">补充信息</div>
         <div>表情包名称</div>
-        <el-input v-model="MemeName" placeholder="请输入表情包名称"></el-input>
-        <div>标题表情包1</div>
-        <Input
-          accept="image/*"
-          @change="handleTitleFileChange($event, 'titlePhoto1')"
-          id="titlePhoto1"
-          type="file"
-        />
-        <div>标题表情包2</div>
-        <Input
-          accept="image/*"
-          @change="handleTitleFileChange($event, 'titlePhoto2')"
-          id="titlePhoto2"
-          type="file"
-        />
-        <div>标题表情包3</div>
-        <Input
-          accept="image/*"
-          @change="handleTitleFileChange($event, 'titlePhoto3')"
-          id="titlePhoto3"
-          type="file"
-        />
-        <div>字体颜色/阴影颜色</div>
-        <div class="flex flex-row">
-          <el-color-picker v-model="textColor1" :predefine="predefineColors" />
-          <el-color-picker v-model="textColor2" :predefine="predefineColors" />
-          <div class="mx-3">|</div>
-          <el-color-picker v-model="shadowColor" :predefine="predefineColors" />
+        <el-input v-model="MemeName" placeholder="请输入表情包名称" clearable></el-input>
+        <div>画师名称</div>
+        <el-input v-model="ArtistName" placeholder="请输入画师名称" clearable></el-input>
+
+        <div>背景颜色</div>
+        <div class="grid grid-cols-5 gap-2 mb-3">
+          <div v-for="(preset, index) in presetBackgroundColors" :key="preset.name"
+            @click="selectBackgroundColor(preset, index)" :class="[
+              'w-12 h-12 rounded-lg cursor-pointer border-2 transition-all duration-200 hover:scale-110 relative group',
+              preset.bgClass,
+              selectedBackgroundIndex === index ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-gray-400'
+            ]" :title="preset.name">
+            <!-- 选中状态的勾号 -->
+            <div v-if="selectedBackgroundIndex === index"
+              class="absolute inset-0 flex items-center justify-center text-white text-lg font-bold drop-shadow-lg">
+              ✓
+            </div>
+            <!-- 悬停时显示颜色名称 -->
+            <div
+              class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+              {{ preset.name }}
+            </div>
+          </div>
         </div>
-        <div>表情包代数</div>
-        <el-input
-          v-model="MemeVersion"
-          placeholder="请输入表情包代数"
-        ></el-input>
-        <div>外背景</div>
-        <el-switch
-          v-model="useBgorColor"
-          class="mb-2"
-          active-text="使用图片"
-          inactive-text="使用颜色"
-        />
         <div class="flex flex-row items-center">
-          <el-color-picker v-model="color1" :predefine="predefineColors" />
-          <el-color-picker v-model="color2" :predefine="predefineColors" />
+          <div class="mr-3">文字颜色</div>
+          <el-color-picker v-model="TextColor" show-alpha :predefine="predefineColors" />
         </div>
-        <div>上传背景</div>
-        <Input
-          accept="image/*"
-          v-model="background"
-          @update:modelValue="background"
-          id="background"
-          type="file"
-        />
-        <div>内背景</div>
-        <el-color-picker
-          v-model="insideBgColor"
-          show-alpha
-          :predefine="predefineColors"
-        />
-        <div>边框</div>
-        <el-color-picker v-model="borderColor" :predefine="predefineColors" />
-        <div>二维码</div>
-        <el-input v-model="QRtext" placeholder="请输入二维码链接"></el-input>
+        <div>文字大小</div>
+        <el-slider v-model="TextSize" :min="1" :max="50"></el-slider>
+        <div class="text-[20px] font-bold">水印</div>
+        <div>开启水印</div>
+        <el-switch v-model="enableWatermark" active-color="#13ce66" />
+        <div v-if="enableWatermark" class="flex flex-col">
+          <div>上传水印</div>
+          <Input accept="image/*" @change="handleTitleFileChange($event, 'watermark')" id="watermark" type="file"
+            :multiple="false" />
+          <div>水印间距</div>
+          X：<el-slider v-model="watermarkConfig.gap[0]"></el-slider>
+          Y：<el-slider v-model="watermarkConfig.gap[1]"></el-slider>
+          <div>水印大小</div>
+          宽度：<el-slider v-model="watermarkConfig.width" :min="1" :max="100"></el-slider>
+          高度：<el-slider v-model="watermarkConfig.height" :min="1" :max="100"></el-slider>
+          <div>不透明度</div>
+          <el-slider v-model="watermarkConfig.opacity" :min="0" :max="1" :step="0.01"></el-slider>
+          <div>水印角度</div>
+          <el-slider v-model="watermarkConfig.angle" :min="-180" :max="180"></el-slider>
+        </div>
+        <div class="text-[20px] font-bold">二维码</div>
+        <div>开启二维码</div>
+        <el-switch v-model="enableQRcode" active-color="#13ce66" />
+        <div v-if="enableQRcode">
+          <div>二维码链接</div>
+          <el-input v-model="QRtext" placeholder="请输入二维码链接"></el-input>
+        </div>
       </div>
       <el-button class="mt-5" @click="downloadImage">生成展示图</el-button>
     </div>
     <!--展示-->
-    <div
-      ref="displaySection"
-      class="w-2/3 flex flex-col bg-white p-5 pb-10 h-full relative bg-cover"
-      :style="backgroundStyle()"
-    >
-      <img
-        :src="qrcode"
-        class="absolute top-5 left-5 w-[100px] h-[100px] bg-orange-500"
-      />
-      <!--顶部表情包-->
-      <div class="absolute top-[30px] w-full f-c-c flex justify-center">
-        <img
-          :src="titlePhoto1.url"
-          v-if="titlePhoto1"
-          class="mt-3 max-h-[140px] overflow-hidden w-[140px] h-full object-cover -rotate-12 image-border"
-        />
-        <img
-          :src="titlePhoto2.url"
-          v-if="titlePhoto2"
-          class="w-[160px] max-h-[160px] overflow-hidden h-full object-cover image-border"
-        />
-        <img
-          :src="titlePhoto3.url"
-          v-if="titlePhoto3"
-          class="mt-3 max-h-[140px] overflow-hidden w-[140px] h-full object-cover rotate-12 image-border"
-        />
+    <div class="lg:w-2/3 w-full h-full font-[MaiYuan]" id="display-section">
+      <WaterMark v-if="enableWatermark" class="w-full flex flex-col h-full relative overflow-hidden"
+        :image="watermarkConfig.image" :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex"
+        :gap="watermarkConfig.gap" :width="watermarkConfig.width" :height="watermarkConfig.height"
+        :angle="watermarkConfig.angle">
+        <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="titlePhoto1"
+          :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName"
+          :TextColor="TextColor" :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext"
+          :backgroundConfig="backgroundConfig" />
+      </WaterMark>
+
+      <div class="w-full flex flex-col h-full relative" v-else>
+        <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="titlePhoto1"
+          :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName"
+          :TextColor="TextColor" :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext"
+          :backgroundConfig="backgroundConfig" />
       </div>
-      <!--表情包名称-->
-      <div class="f-c-c w-full absolute top-[125px] left-10">
-        <div
-          :data-text="MemeName"
-          class="text-[85px] font-[MaiYuan] text text-center"
-          :style="{
-            '--textColor1': textColor1,
-            '--textColor2': textColor2,
-            '--shadowColor': shadowColor,
-          }"
-        >
-          {{ MemeName }}
-        </div>
-        <div class="flex flex-col top-5 relative">
-          <div
-            class="text-[30px] font-[MaiYuan] text2 mb-[-18px]"
-            data-text="表情包"
-            :style="{
-              '--textColor1': textColor1,
-              '--textColor2': textColor2,
-              '--shadowColor': shadowColor,
-            }"
-          >
-            表情包
-          </div>
-          <div
-            class="text-[30px] font-[MaiYuan] text2"
-            :data-text="MemeVersion"
-            :style="{
-              '--textColor1': textColor1,
-              '--textColor2': textColor2,
-              '--shadowColor': shadowColor,
-            }"
-          >
-            {{ MemeVersion }}
-          </div>
-        </div>
-      </div>
-      <!--表情包展示-->
-      <div
-        class="mt-[200px] min-h-[600px] w-full grid grid-cols-4 gap-4 rounded-[20px] box-border p-5 border-8"
-        :style="{
-          borderColor: borderColor,
-          backgroundColor: insideBgColor,
-        }"
-      >
-        <div class="w-full" v-for="file in uploadedFiles" :key="file.name">
-          <img
-            v-if="file.type && file.type.startsWith('image/')"
-            :src="file.url"
-            :alt="file.name"
-            class="w-full h-auto object-cover image-border"
-          />
-          <div v-else>{{ file.name }}</div>
-        </div>
-      </div>
-      <!--底部边框-->
-      <div
-        :style="{ backgroundColor: borderColor }"
-        class="w-full h-4 absolute bottom-0 left-0"
-      ></div>
     </div>
   </div>
 </template>
 <script lang="js" setup>
-import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import BreadCrumb from '@/components/BreadCrumb.vue';
-import { ref } from 'vue'
-
+import { ref, reactive, computed, watchEffect } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMemeStore } from '@/stores/meme'
+import { useWindowSize } from '@vueuse/core'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
+import WaterMark from '@/components/WaterMark.vue';
+import DisplayContent from '@/components/DisplayContent.vue';
+import { toPng } from 'html-to-image';
 
-const uploadedFiles = ref([])
-const handleFileChange = (files) => {
-    if (files) {
-        const allowedTypes = ['image/png', 'image/jpeg', 'image/gif']
-        uploadedFiles.value = files
-            .filter(file => allowedTypes.includes(file.type))
-            .map(file => ({
-                name: file.name,
-                type: file.type,
-                url: URL.createObjectURL(file)
-            }))
-    } else {
-        uploadedFiles.value = []
-    }
+const { width, height } = useWindowSize()
+
+// 使用共享的store
+const memeStore = useMemeStore()
+
+// 从store中获取响应式数据
+const {
+  uploadedFiles,
+  titlePhoto1,
+  titlePhoto2,
+  memeName: MemeName,
+  artistName: ArtistName,
+  textColor: TextColor,
+  textSize: TextSize,
+  enableWatermark,
+  watermarkConfig,
+  enableQRcode,
+  qrText: QRtext,
+  predefineColors,
+  presetBackgroundColors,
+  selectedBackgroundIndex
+} = storeToRefs(memeStore)
+
+// 根据当前背景颜色获取对应的 Tailwind 类配置
+const backgroundConfig = computed(() => {
+  // 直接使用 store 中当前选择的背景配置
+  const currentConfig = presetBackgroundColors.value[selectedBackgroundIndex.value]
+  return currentConfig || presetBackgroundColors.value[0]
+})
+
+// 选择背景颜色
+const selectBackgroundColor = (preset, index) => {
+  // 只更新背景配置索引，不再设置 BgColor
+  memeStore.setBackgroundIndex(index)
 }
 
-//处理标题表情包
+let fileInput = ref(null)
+let photoInput1 = ref(null)
+let photoInput2 = ref(null)
+
+const handleFileChange = (e) => {
+  let files = Array.from(e.target.files)
+  if (files) {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/gif']
+    const processedFiles = files
+      .filter(file => allowedTypes.includes(file.type))
+      .map(file => ({
+        name: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file)
+      }))
+    memeStore.setUploadedFiles(processedFiles)
+  } else {
+    memeStore.clearUploadedFiles()
+  }
+}
+
+const cleanFiles = () => {
+  memeStore.clearUploadedFiles()
+  fileInput.value.input.value = ''//清空input已选择的文件
+}
+
+const cleanPhoto1 = () => {
+  memeStore.clearTitlePhoto('titlePhoto1')
+  photoInput1.value.input.value = ''//清空input已选择的文件
+}
+
+const cleanPhoto2 = () => {
+  memeStore.clearTitlePhoto('titlePhoto2')
+  photoInput2.value.input.value = ''//清空input已选择的文件
+}
+
+// 处理上传的标题图片和水印
 const handleTitleFileChange = (event, photoType) => {
   const file = event.target.files[0]
   if (file) {
@@ -209,162 +198,36 @@ const handleTitleFileChange = (event, photoType) => {
       url: URL.createObjectURL(file)
     }
     if (photoType === 'titlePhoto1') {
-      titlePhoto1.value = photo
+      memeStore.setTitlePhoto('titlePhoto1', photo)
     } else if (photoType === 'titlePhoto2') {
-      titlePhoto2.value = photo
-    } else if (photoType === 'titlePhoto3') {
-      titlePhoto3.value = photo
+      memeStore.setTitlePhoto('titlePhoto2', photo)
+    } else if (photoType === 'watermark') {
+      memeStore.setWatermarkImage(photo.url) // 直接赋值URL字符串
     }
   }
 }
 
-const backgroundStyle = () => {
-    if (useBgorColor.value) {
-        return { backgroundImage: `url(${background.value})` };
-    } else {
-        if (color2.value) {
-            return { background: `linear-gradient(${color1.value}, ${color2.value})` };
-        } else {
-            return { backgroundColor: color1.value };
-        }
-    }
-}
-
-//表情包名称
-const MemeName = ref('灯火橘Channel')
-//标题表情包1
-const titlePhoto1 = ref(null)
-//标题表情包2
-const titlePhoto2 = ref(null)
-//标题表情包3
-const titlePhoto3 = ref(null)
-
-//背景
-const useBgorColor = ref(false)
-const background = ref(bg)
-//背景渐变色1
-const color1 = ref('#fff')
-//背景渐变色2
-const color2 = ref('')
-//内背景颜色
-const insideBgColor = ref('rgba(255, 234, 191, 0.6)')
-//预定义颜色
-const predefineColors = ref([
-    '#ff4500',
-    '#ff8c00',
-    '#ffd700',
-    '#90ee90',
-    '#00ced1',
-    '#1e90ff',
-    '#c71585',
-    'rgba(255, 69, 0, 0.68)',
-    'rgb(255, 120, 0)',
-    'hsv(51, 100, 98)',
-    'hsva(120, 40, 94, 0.5)',
-    'hsl(181, 100%, 37%)',
-    'hsla(209, 100%, 56%, 0.73)',
-    '#c7158577',
-])
-//表情包代数
-const MemeVersion = ref('第十一弹')
-//边框颜色
-const borderColor = ref('#FF7800')
-//文字渐变色1
-const textColor1 = ref('#FF7800')
-//文字渐变色2
-const textColor2 = ref('#FFEABF')
-//阴影颜色
-const shadowColor = ref('#BF5000')
-//二维码
-const QRtext = ref('https://zb.vip.qq.com/hybrid/emoticonmall/detail?id=240956')
-const qrcode = useQRCode(QRtext)
 //保存图片
-const displaySection = ref(null);
+const displayContentRef = ref(null);
+
 const downloadImage = () => {
-  const element = displaySection.value;
-  html2canvas(element).then(canvas => {
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = '表情包展示图.png';
-    link.click();
-  });
-};
+  const node = document.getElementById('display-section')
+  toPng(node)
+    .then((dataUrl) => {
+      const link = document.createElement('a')
+      link.download = `${MemeName.value}展示图.png`
+      link.href = dataUrl
+      link.click()
+    })
+    .catch((error) => {
+      console.error('oops, something went wrong!', error)
+    });
+}
 </script>
 <style scoped>
 .f-c-c {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.text {
-  -webkit-text-stroke: 8px white;
-  /* 白色描边 */
-  color: transparent;
-  /* 透明文本颜色 */
-  filter: drop-shadow(0 5px 0 var(--shadowColor));
-}
-
-.text::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(var(--textColor1), var(--textColor2));
-  /* 渐变色 */
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  z-index: 1;
-  -webkit-text-stroke: 0;
-  /* 去除描边 */
-}
-
-.text2 {
-  -webkit-text-stroke: 4px white;
-  /* 白色描边 */
-  color: transparent;
-  /* 透明文本颜色 */
-  filter: drop-shadow(0 5px 0 var(--shadowColor));
-}
-
-.text2::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(var(--textColor1), var(--textColor2));
-  /* 渐变色 */
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  z-index: 1;
-  -webkit-text-stroke: 0;
-  /* 去除描边 */
-}
-
-.image-border {
-  position: relative;
-  filter: drop-shadow(3px 3px 0 rgba(255, 255, 255, 1))
-    drop-shadow(-3px 3px 0 rgba(255, 255, 255, 1))
-    drop-shadow(3px -3px 0 rgba(255, 255, 255, 1))
-    drop-shadow(-3px -3px 0 rgba(255, 255, 255, 1));
-}
-
-.image-border::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
-  /* 向下的阴影 */
-  pointer-events: none;
-  /* 确保伪元素不会影响鼠标事件 */
 }
 </style>

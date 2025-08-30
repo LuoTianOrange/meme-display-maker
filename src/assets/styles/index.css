@@ -98,3 +98,10 @@ body {
   font-display: swap;
   src: url('../fonts/荆南麦圆体0.500.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'tangyuan';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/tangyuan.ttf') format('truetype');
+}
