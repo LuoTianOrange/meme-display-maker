@@ -1,6 +1,7 @@
 <template>
     <div ref="displaySection"
-        :class="['w-full', 'min-h-[200px]', 'pattern-grid-md', backgroundConfig.bgClass, backgroundConfig.patternClass]">
+        :class="['w-full', 'pattern-grid-md', backgroundConfig.bgClass, backgroundConfig.patternClass]"
+        style="min-height: auto;">
         <!--顶部-->
         <div class="grid grid-cols-4 gap-4 min-h-[200px] pt-4 px-4">
             <div class="w-full">

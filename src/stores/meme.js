@@ -2,13 +2,16 @@ import { ref, reactive,computed } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useMemeStore = defineStore('meme', () => {
-  // 上传的表情包文件
+  // 上传的表情包文件列表（支持拖拽排序）
   const uploadedFiles = ref([])
   
-  // 标题表情包
+  // 标题表情包（现在可以从 uploadedFiles 选择）
   const titlePhoto1 = ref(null)
   const titlePhoto2 = ref(null)
   const titlePhoto3 = ref(null)
+  
+  // 选中作为标题的图片ID（如果从列表选择）
+  const selectedTitleFromList = ref(null)
   
   // 表情包基本信息
   const memeName = ref('表情包名称')
@@ -148,15 +151,61 @@ export const useMemeStore = defineStore('meme', () => {
     uploadedFiles.value = [...uploadedFiles.value, ...files]
   }
 
+  // 添加单个文件到列表
+  function addFileToList(file) {
+    const newFile = {
+      id: Date.now() + Math.random(), // 生成唯一ID
+      name: file.name,
+      type: file.type,
+      url: URL.createObjectURL(file),
+      file: file
+    }
+    uploadedFiles.value.push(newFile)
+    return newFile
+  }
+
+  // 从列表中删除文件
+  function removeFileFromList(id) {
+    const index = uploadedFiles.value.findIndex(file => file.id === id)
+    if (index > -1) {
+      // 释放 URL 对象
+      URL.revokeObjectURL(uploadedFiles.value[index].url)
+      uploadedFiles.value.splice(index, 1)
+    }
+    // 如果删除的是标题图片，清除标题选择
+    if (selectedTitleFromList.value === id) {
+      selectedTitleFromList.value = null
+    }
+  }
+
+  // 更新文件列表顺序（拖拽排序）
+  function reorderFiles(newOrder) {
+    uploadedFiles.value = newOrder
+  }
+
   // 清除所有上传的文件
   function clearUploadedFiles() {
+    // 释放所有 URL 对象
+    uploadedFiles.value.forEach(file => {
+      URL.revokeObjectURL(file.url)
+    })
     uploadedFiles.value = []
+    selectedTitleFromList.value = null
+  }
+
+  // 设置从列表中选择的标题图片
+  function setTitleFromList(fileId) {
+    selectedTitleFromList.value = fileId
+    // 清除单独上传的标题图片
+    titlePhoto1.value = null
   }
 
   // 设置标题图片
   function setTitlePhoto(key, photo) {
     if (key === 'titlePhoto1') {
       titlePhoto1.value = photo
+      // 清除从列表选择的标题
+      selectedTitleFromList.value = null
     } else if (key === 'titlePhoto2') {
       titlePhoto2.value = photo
     } else if (key === 'titlePhoto3') {
@@ -174,6 +223,16 @@ export const useMemeStore = defineStore('meme', () => {
       titlePhoto3.value = null
     }
   }
+
+  // 获取当前有效的标题图片
+  const currentTitlePhoto = computed(() => {
+    // 优先使用从列表选择的图片
+    if (selectedTitleFromList.value) {
+      return uploadedFiles.value.find(file => file.id === selectedTitleFromList.value)
+    }
+    // 否则使用单独上传的图片
+    return titlePhoto1.value
+  })
 
   // 设置水印图片
   function setWatermarkImage(image) {
@@ -196,6 +255,8 @@ export const useMemeStore = defineStore('meme', () => {
     titlePhoto1,
     titlePhoto2,
     titlePhoto3,
+    selectedTitleFromList,
+    currentTitlePhoto,
     memeName,
     memeVersion,
     artistName,
@@ -224,7 +285,11 @@ export const useMemeStore = defineStore('meme', () => {
     // 方法
     setUploadedFiles,
     addUploadedFiles,
+    addFileToList,
+    removeFileFromList,
+    reorderFiles,
     clearUploadedFiles,
+    setTitleFromList,
     setTitlePhoto,
     clearTitlePhoto,
     setWatermarkImage,
