@@ -62,6 +62,21 @@
               <label class="block text-sm font-medium mb-2">文字大小: {{ TextSize }}px</label>
               <el-slider v-model="TextSize" :min="1" :max="50"></el-slider>
             </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-2">字体选择</label>
+              <el-select v-model="selectedFont" placeholder="选择字体" class="w-full">
+                <el-option
+                  v-for="font in fontOptions"
+                  :key="font.value"
+                  :label="font.label"
+                  :value="font.value"
+                  :style="{ fontFamily: font.family }"
+                >
+                  {{ font.label }}
+                </el-option>
+              </el-select>
+            </div>
           </div>
         </div>
         <!-- 水印设置 -->
@@ -153,7 +168,8 @@
     <!--展示-->
     <div class="lg:w-2/3 w-full flex items-start justify-center bg-gray-50 p-4">
       <div 
-        class="preview-wrapper font-[MaiYuan]" 
+        class="preview-wrapper"
+        :class="currentFontClass"
         :style="wrapperStyle"
       >
         <div class="preview-content" :style="contentStyle" id="display-section">
@@ -216,6 +232,30 @@ const {
   presetBackgroundColors,
   selectedBackgroundIndex
 } = storeToRefs(memeStore)
+
+// 字体选择相关
+const selectedFont = ref('MaiYuan')
+const fontOptions = [
+  { label: '荆南麦圆体 (MaiYuan)', value: 'MaiYuan', family: 'MaiYuan' },
+  { label: '禅圆体 (Maru)', value: 'Maru', family: 'Maru' },
+  { label: '汤圆体 (TangYuan)', value: 'tangyuan', family: 'tangyuan' },
+  { label: '系统默认 (无衬线)', value: 'system', family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+  { label: '微软雅黑', value: 'microsoft', family: 'Microsoft YaHei, sans-serif' },
+  { label: '宋体 (衬线)', value: 'serif', family: 'SimSun, serif' }
+]
+
+// 计算当前字体类名
+const currentFontClass = computed(() => {
+  const fontMap = {
+    'MaiYuan': 'font-[MaiYuan]',
+    'Maru': 'font-[Maru]', 
+    'tangyuan': 'font-[tangyuan]',
+    'system': 'font-sans',
+    'microsoft': 'font-[Microsoft_YaHei]',
+    'serif': 'font-serif'
+  }
+  return fontMap[selectedFont.value] || 'font-[MaiYuan]'
+})
 
 
 
