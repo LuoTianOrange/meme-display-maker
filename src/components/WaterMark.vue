@@ -1,5 +1,5 @@
 <template>
-  <div class="watermark-wrapper">
+  <div class="watermark-wrapper" ref="wrapperRef">
     <slot></slot>
     <div class="watermark-container" v-if="imageCount > 0 && image">
       <img
@@ -15,8 +15,8 @@
 </template>
 
 <script lang="js" setup>
-import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { useWindowSize } from '@vueuse/core'
+import { computed, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
+import { useElementSize } from '@vueuse/core'
 
 const props = defineProps({
     image: {
@@ -49,16 +49,18 @@ const props = defineProps({
     }
 })
 
-const { width: windowWidth, height: windowHeight } = useWindowSize()
+const wrapperRef = ref(null)
+
+// 使用容器大小而不是窗口大小
+const { width: containerWidth, height: containerHeight } = useElementSize(wrapperRef)
 
 const cols = computed(() => {
-  return Math.ceil(windowWidth.value / (props.width + props.gap[0]))
+  return Math.ceil(containerWidth.value / (props.width + props.gap[0]))
 })
 
-
 const getImageCount = () => {
-  const cols = Math.ceil(windowWidth.value / (props.width + props.gap[0]))
-  const rows = Math.ceil(windowHeight.value / (props.height + props.gap[1]))
+  const cols = Math.ceil(containerWidth.value / (props.width + props.gap[0]))
+  const rows = Math.ceil(containerHeight.value / (props.height + props.gap[1]))
   return cols * rows
 }
 
