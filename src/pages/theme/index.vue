@@ -1,24 +1,9 @@
 <template>
   <div class="w-full h-full flex flex-col min-h-screen">
     <!--顶部导航栏-->
-    <div class="h-[60px] w-full bg-zinc-500 flex items-center justify-between">
-      <div class="text-[25px] text-white ml-5">表情包展示图生成器</div>
-      <div class="flex items-center gap-3 mr-5">
-        <!-- <el-button @click="switchTheme('theme1')" :type="currentTheme === 'theme1' ? 'primary' : 'default'"
-          :plain="currentTheme !== 'theme1'" size="large">
-          主题一
-        </el-button>
-        <el-button @click="switchTheme('theme2')" :type="currentTheme === 'theme2' ? 'primary' : 'default'"
-          :plain="currentTheme !== 'theme2'" size="large">
-          主题二
-        </el-button> -->
-      </div>
-    </div>
+    <HeadBar></HeadBar>
     <!--内容部分-->
-    <div class="w-full h-full min-h-[calc(100vh-60px)] flex-grow f-c-c flex-col bg-zinc-100">
-      <!-- <div class="f-c-c my-3">
-        <BreadCrumb></BreadCrumb>
-      </div> -->
+    <div class="w-full h-full min-h-[calc(100vh-60px)] flex-grow flex justify-center items-center flex-col bg-zinc-100">
       <RouterView></RouterView>
     </div>
     <!--底部导航栏-->
@@ -28,27 +13,13 @@
 <script lang="js" setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import HeadBar from '@/components/HeadBar.vue'
 
 const router = useRouter()
 const route = useRoute()
 
-// 当前主题
-const currentTheme = computed(() => {
-  return route.name || 'theme2' // 默认为theme2
-})
-
-// 切换主题
-const switchTheme = (theme) => {
-  router.push({ name: theme })
-}
 </script>
 <style scoped>
-.f-c-c {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .text {
   -webkit-text-stroke: 8px white;
   /* 白色描边 */

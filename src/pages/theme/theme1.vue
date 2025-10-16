@@ -1,7 +1,27 @@
 <template>
-  <div class="flex h-full lg:flex-row flex-col-reverse max-w-[1100px] w-full flex-grow m-5 rounded-md">
-    <!-- 左侧控制面板 -->
-    <div class="lg:w-1/3 w-full h-full flex-grow lg:mr-4 lg:mt-0 mt-4 bg-white p-5 overflow-y-auto">
+  <div class="flex h-full lg:flex-row flex-col max-w-[1100px] w-full flex-grow m-5 rounded-md">
+    <!--展示-->
+    <div class="lg:w-2/3 w-full h-full flex items-start justify-center  bg-white border rounded-md p-4">
+      <div class="preview-wrapper" :class="currentFontClass" :style="wrapperStyle">
+        <div class="preview-content" :style="contentStyle" id="display-section">
+          <WaterMark v-if="enableWatermark" class="w-full relative overflow-hidden" :image="watermarkConfig.image"
+            :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex" :gap="watermarkConfig.gap"
+            :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
+            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+              :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
+              :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
+          </WaterMark>
+
+          <div class="w-full relative" v-else>
+            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+              :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
+              :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 控制面板 -->
+    <div class="lg:w-1/3 w-full h-full flex-grow lg:ml-4 lg:mt-0 mt-4 bg-white border rounded-md p-5 overflow-y-auto">
       <div class="p-4 space-y-6">
 
         <!-- 图片管理组件 -->
@@ -120,7 +140,7 @@
 
               <div>
                 <label class="block text-sm font-medium mb-1">不透明度: {{ (watermarkConfig.opacity * 100).toFixed(0)
-                  }}%</label>
+                }}%</label>
                 <el-slider v-model="watermarkConfig.opacity" :min="0" :max="1" :step="0.01"></el-slider>
               </div>
 
@@ -154,26 +174,6 @@
             :disabled="uploadedFiles.length === 0">
             生成展示图
           </el-button>
-        </div>
-      </div>
-    </div>
-    <!--展示-->
-    <div class="lg:w-2/3 w-full flex items-start justify-center bg-gray-50 p-4">
-      <div class="preview-wrapper" :class="currentFontClass" :style="wrapperStyle">
-        <div class="preview-content" :style="contentStyle" id="display-section">
-          <WaterMark v-if="enableWatermark" class="w-full relative overflow-hidden" :image="watermarkConfig.image"
-            :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex" :gap="watermarkConfig.gap"
-            :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
-            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
-              :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
-              :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
-          </WaterMark>
-
-          <div class="w-full relative" v-else>
-            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
-              :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
-              :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
-          </div>
         </div>
       </div>
     </div>

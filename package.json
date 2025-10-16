@@ -22,6 +22,7 @@
     "pinia": "^2.2.6",
     "qrcode": "^1",
     "radix-vue": "^1.9.10",
+    "reka-ui": "^2.5.1",
     "sortablejs": "^1.15.6",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
