@@ -1,44 +1,63 @@
 <template>
-  <div class="flex h-full lg:flex-row flex-col max-w-[1100px] w-full flex-grow m-5 rounded-md">
+  <div class="w-full max-w-[1100px] h-full flex lg:flex-row flex-col flex-grow m-5 rounded-md">
     <!--展示-->
-    <div class="lg:w-2/3 w-full h-full flex items-start justify-center  bg-white border rounded-md p-4">
-      <div class="preview-wrapper" :class="currentFontClass" :style="wrapperStyle">
-        <div class="preview-content" :style="contentStyle" id="display-section">
-          <WaterMark v-if="enableWatermark" class="w-full relative overflow-hidden" :image="watermarkConfig.image"
+    <div class="w-full lg:w-2/3 h-full flex justify-center items-start bg-white p-4 border rounded-md">
+      <div class="preview-wrapper" :style="[wrapperStyle, { fontFamily: currentFontFamily }]">
+        <div class="preview-content" :style="contentStyle">
+          <WaterMark v-if="enableWatermark" class="w-full overflow-hidden relative" :image="watermarkConfig.image"
             :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex" :gap="watermarkConfig.gap"
             :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
-            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+            <DisplayContent :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
               :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
               :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
           </WaterMark>
 
           <div class="w-full relative" v-else>
-            <DisplayContent ref="displayContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+            <DisplayContent :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
               :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
               :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 隐藏的导出节点 -->
+    <div class="export-node-wrapper" style="position: fixed; left: -9999px; top: 0;" aria-hidden="true">
+      <div ref="exportNodeRef" :style="{ width: EXPORT_WIDTH + 'px', fontFamily: currentFontFamily }">
+        <WaterMark v-if="enableWatermark" class="w-full overflow-hidden relative" :image="watermarkConfig.image"
+          :opacity="watermarkConfig.opacity" :z-index="watermarkConfig.zIndex" :gap="watermarkConfig.gap"
+          :width="watermarkConfig.width" :height="watermarkConfig.height" :angle="watermarkConfig.angle">
+          <DisplayContent ref="exportContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+            :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
+            :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
+        </WaterMark>
+
+        <div class="w-full relative" v-else>
+          <DisplayContent ref="exportContentRef" :uploadedFiles="uploadedFiles" :titlePhoto1="currentTitlePhoto"
+            :titlePhoto2="titlePhoto2" :MemeName="MemeName" :ArtistName="ArtistName" :TextColor="TextColor"
+            :TextSize="TextSize" :enableQRcode="enableQRcode" :QRtext="QRtext" :backgroundConfig="backgroundConfig" />
+        </div>
+      </div>
+    </div>
     <!-- 控制面板 -->
-    <div class="lg:w-1/3 w-full h-full flex-grow lg:ml-4 lg:mt-0 mt-4 bg-white border rounded-md p-5 overflow-y-auto">
-      <div class="p-4 space-y-6">
+    <div class="w-full lg:w-1/3 h-full overflow-y-auto flex-grow bg-white mt-4 lg:mt-0 lg:ml-4 p-5 border rounded-md">
+      <div class="space-y-6 p-4">
 
         <!-- 图片管理组件 -->
         <ImageListManager />
 
         <!-- 分割线 -->
-        <div class="border-t border-gray-200"></div>
+        <div class="border-gray-200 border-t"></div>
         <!-- 基本信息 -->
         <div class="space-y-4">
-          <div class="text-[20px] font-bold">基本信息</div>
+          <div class="font-bold text-[20px]">基本信息</div>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm font-medium mb-1">表情包名称</label>
+              <label class="block mb-1 font-medium text-sm">表情包名称</label>
               <el-input v-model="MemeName" placeholder="请输入表情包名称" clearable></el-input>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">画师名称</label>
+              <label class="block mb-1 font-medium text-sm">画师名称</label>
               <el-input v-model="ArtistName" placeholder="请输入画师名称" clearable></el-input>
             </div>
           </div>
@@ -46,11 +65,11 @@
 
         <!-- 样式设置 -->
         <div class="space-y-4">
-          <div class="text-[20px] font-bold">样式设置</div>
+          <div class="font-bold text-[20px]">样式设置</div>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium mb-2">背景颜色</label>
-              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+              <label class="block mb-2 font-medium text-sm">背景颜色</label>
+              <div class="gap-2 grid grid-cols-5">
                 <div v-for="(preset, index) in presetBackgroundColors" :key="preset.name"
                   @click="selectBackgroundColor(preset, index)" :class="[
                     'w-12 h-12 rounded-lg cursor-pointer border-2 transition-all duration-200 hover:scale-110 relative group',
@@ -59,12 +78,12 @@
                   ]" :title="preset.name">
                   <!-- 选中状态的勾号 -->
                   <div v-if="selectedBackgroundIndex === index"
-                    class="absolute inset-0 flex items-center justify-center text-white text-lg font-bold drop-shadow-lg">
+                    class="absolute inset-0 flex justify-center items-center drop-shadow-lg font-bold text-white text-lg">
                     ✓
                   </div>
                   <!-- 悬停时显示颜色名称 -->
                   <div
-                    class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                    class="-top-8 left-1/2 z-10 absolute bg-gray-800 opacity-0 group-hover:opacity-100 px-2 py-1 rounded text-white text-xs whitespace-nowrap transition-opacity -translate-x-1/2 transform">
                     {{ preset.name }}
                   </div>
                 </div>
@@ -72,19 +91,19 @@
             </div>
 
             <div class="flex flex-col space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="block text-sm font-medium">文字颜色</label>
+              <div class="flex justify-between items-center">
+                <label class="block font-medium text-sm">文字颜色</label>
                 <el-color-picker v-model="TextColor" show-alpha :predefine="predefineColors" />
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">文字大小: {{ TextSize }}px</label>
+              <label class="block mb-2 font-medium text-sm">文字大小: {{ TextSize }}px</label>
               <el-slider v-model="TextSize" :min="1" :max="50"></el-slider>
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">字体选择</label>
+              <label class="block mb-2 font-medium text-sm">字体选择</label>
               <el-select v-model="selectedFont" placeholder="选择字体" class="w-full">
                 <el-option v-for="font in fontOptions" :key="font.value" :label="font.label" :value="font.value"
                   :style="{ fontFamily: font.family }">
@@ -96,22 +115,22 @@
         </div>
         <!-- 水印设置 -->
         <div class="space-y-4">
-          <div class="text-[20px] font-bold">水印设置</div>
+          <div class="font-bold text-[20px]">水印设置</div>
           <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <label class="text-sm font-medium">开启水印</label>
+            <div class="flex justify-between items-center">
+              <label class="font-medium text-sm">开启水印</label>
               <el-switch v-model="enableWatermark" active-color="#13ce66" />
             </div>
 
-            <div v-if="enableWatermark" class="space-y-3 pl-4 border-l-2 border-blue-200">
+            <div v-if="enableWatermark" class="space-y-3 pl-4 border-blue-200 border-l-2">
               <div>
-                <label class="block text-sm font-medium mb-1">上传水印图片</label>
+                <label class="block mb-1 font-medium text-sm">上传水印图片</label>
                 <Input accept="image/*" @change="handleTitleFileChange($event, 'watermark')" id="watermark" type="file"
                   :multiple="false" />
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1">水印间距</label>
+                <label class="block mb-1 font-medium text-sm">水印间距</label>
                 <div class="space-y-2">
                   <div>
                     <span class="text-xs">X轴: {{ watermarkConfig.gap[0] }}</span>
@@ -125,7 +144,7 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1">水印大小</label>
+                <label class="block mb-1 font-medium text-sm">水印大小</label>
                 <div class="space-y-2">
                   <div>
                     <span class="text-xs">宽度: {{ watermarkConfig.width }}</span>
@@ -139,13 +158,13 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1">不透明度: {{ (watermarkConfig.opacity * 100).toFixed(0)
+                <label class="block mb-1 font-medium text-sm">不透明度: {{ (watermarkConfig.opacity * 100).toFixed(0)
                 }}%</label>
                 <el-slider v-model="watermarkConfig.opacity" :min="0" :max="1" :step="0.01"></el-slider>
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1">水印角度: {{ watermarkConfig.angle }}°</label>
+                <label class="block mb-1 font-medium text-sm">水印角度: {{ watermarkConfig.angle }}°</label>
                 <el-slider v-model="watermarkConfig.angle" :min="-180" :max="180"></el-slider>
               </div>
             </div>
@@ -154,22 +173,22 @@
 
         <!-- 二维码设置 -->
         <div class="space-y-4">
-          <div class="text-[20px] font-bold">二维码设置</div>
+          <div class="font-bold text-[20px]">二维码设置</div>
           <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <label class="text-sm font-medium">开启二维码</label>
+            <div class="flex justify-between items-center">
+              <label class="font-medium text-sm">开启二维码</label>
               <el-switch v-model="enableQRcode" active-color="#13ce66" />
             </div>
 
-            <div v-if="enableQRcode" class="pl-4 border-l-2 border-blue-200">
-              <label class="block text-sm font-medium mb-1">二维码链接</label>
+            <div v-if="enableQRcode" class="pl-4 border-blue-200 border-l-2">
+              <label class="block mb-1 font-medium text-sm">二维码链接</label>
               <el-input v-model="QRtext" placeholder="请输入二维码链接"></el-input>
             </div>
           </div>
         </div>
 
         <!-- 操作按钮 -->
-        <div class="sticky bottom-0 bg-white pt-4 border-t border-gray-200">
+        <div class="bottom-0 sticky bg-white pt-4 border-gray-200 border-t">
           <el-button class="w-full" type="primary" size="large" @click="downloadImage"
             :disabled="uploadedFiles.length === 0">
             生成展示图
@@ -229,17 +248,17 @@ const fontOptions = [
   { label: '宋体 (衬线)', value: 'serif', family: 'SimSun, serif' }
 ]
 
-// 计算当前字体类名
-const currentFontClass = computed(() => {
-  const fontMap = {
-    'MaiYuan': 'font-[MaiYuan]',
-    'Maru': 'font-[Maru]',
-    'tangyuan': 'font-[tangyuan]',
-    'system': 'font-sans',
-    'microsoft': 'font-[Microsoft_YaHei]',
-    'serif': 'font-serif'
+// 当前选中字体的 font-family。
+const currentFontFamily = computed(() => {
+  const familyMap = {
+    'MaiYuan': "'MaiYuan', 'Maru', 'tangyuan', sans-serif",
+    'Maru': "'Maru', 'MaiYuan', 'tangyuan', sans-serif",
+    'tangyuan': "'tangyuan', 'MaiYuan', 'Maru', sans-serif",
+    'system': "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    'microsoft': "'Microsoft YaHei', '微软雅黑', sans-serif",
+    'serif': "SimSun, 'Times New Roman', serif"
   }
-  return fontMap[selectedFont.value] || 'font-[MaiYuan]'
+  return familyMap[selectedFont.value] || familyMap['MaiYuan']
 })
 
 
@@ -251,19 +270,17 @@ const backgroundConfig = computed(() => {
   return currentConfig || presetBackgroundColors.value[0]
 })
 
-// 预览容器 - 固定800px宽度，整体缩放适应屏幕
-const PREVIEW_WIDTH = 800   // 固定预览宽度800px
+// 导出设计尺寸
+const EXPORT_WIDTH = 800
 
 // 计算缩放和包装器样式
 const scale = computed(() => {
-  // 简化计算：直接使用实际的预览区域宽度
-  // 考虑到整体容器max-w-[1100px]的限制
+
   const containerMaxWidth = 1100
   const actualContainerWidth = Math.min(width.value, containerMaxWidth)
 
   let availableWidth
   if (width.value >= 1024) {
-    // lg及以上：预览区域占2/3，但需要减去左侧面板和间距
     availableWidth = (actualContainerWidth * 2 / 3) - 40 // 减去padding和margin
   } else {
     // 小屏幕：预览区域占全宽度
@@ -271,16 +288,16 @@ const scale = computed(() => {
   }
 
   // 确保不会过小，最小缩放到0.3
-  return Math.max(Math.min(availableWidth / PREVIEW_WIDTH, 1), 0.3)
+  return Math.max(Math.min(availableWidth / EXPORT_WIDTH, 1), 0.3)
 })
 
 // 获取实际内容高度（需要等DOM渲染完成）
 const actualHeight = ref(0)
 
-// 包装器样式 - 控制缩放后的占用空间
+// 包装器样式 - 控制缩放后的占用空间（预览）
 const wrapperStyle = computed(() => {
   return {
-    width: `${PREVIEW_WIDTH * scale.value}px`,
+    width: `${EXPORT_WIDTH * scale.value}px`,
     // 如果有实际高度，使用缩放后的高度；否则使用auto
     height: actualHeight.value > 0 ? `${actualHeight.value * scale.value}px` : 'auto',
     margin: '0 auto', // 水平居中
@@ -288,10 +305,10 @@ const wrapperStyle = computed(() => {
   }
 })
 
-// 内容样式 - 固定800px宽度然后缩放
+// 内容样式 - 固定EXPORT_WIDTH宽度然后缩放（预览）
 const contentStyle = computed(() => {
   return {
-    width: `${PREVIEW_WIDTH}px`,
+    width: `${EXPORT_WIDTH}px`,
     transform: `scale(${scale.value})`,
     transformOrigin: 'top left'
   }
@@ -318,14 +335,15 @@ const handleTitleFileChange = (event, photoType) => {
   }
 }
 
-// 保存图片
-const displayContentRef = ref(null);
+// 导出节点与高度测量
+const exportNodeRef = ref(null)
+const exportContentRef = ref(null)
 
-// 更新实际高度
+// 更新实际高度（从导出节点测量，预览缩放仅做视觉展示）
 const updateActualHeight = () => {
   nextTick(() => {
-    if (displayContentRef.value && displayContentRef.value.displaySection) {
-      actualHeight.value = displayContentRef.value.displaySection.offsetHeight
+    if (exportContentRef.value && exportContentRef.value.displaySection) {
+      actualHeight.value = exportContentRef.value.displaySection.offsetHeight
     }
   })
 }
@@ -339,6 +357,12 @@ watchEffect(() => {
 
 onMounted(() => {
   updateActualHeight()
+  // 预加载全部自定义字体：切换字体即时生效，也保证导出时字体已就绪
+  if (document.fonts) {
+    document.fonts.load('32px MaiYuan').catch(() => {})
+    document.fonts.load('32px Maru').catch(() => {})
+    document.fonts.load('32px tangyuan').catch(() => {})
+  }
 })
 
 const downloadImage = async () => {
@@ -348,41 +372,32 @@ const downloadImage = async () => {
     return
   }
 
-  const node = document.getElementById('display-section')
+  const node = exportNodeRef.value
   if (!node) {
-    toast.error('未找到预览元素')
-    console.error('未找到预览元素')
+    toast.error('未找到导出元素')
+    console.error('未找到导出元素')
     return
   }
 
   try {
-    // 临时移除缩放，确保生成原始尺寸的图像
-    const originalTransform = node.style.transform
-    node.style.transform = 'scale(1)'
-    node.style.width = `${PREVIEW_WIDTH}px`
+    // 等待字体加载完成，确保导出的文字样式正确
+    await document.fonts.ready
+    await nextTick()
 
+    // 直接截取固定设计尺寸的隐藏节点，不做任何 transform 处理，
     const dataUrl = await toPng(node, {
-      width: PREVIEW_WIDTH, // 固定宽度800px
-      pixelRatio: 2, // 高清输出
-      backgroundColor: 'white' // 确保背景色
+      pixelRatio: 2,
+      backgroundColor: 'white'
     })
-
-    // 恢复原始样式
-    node.style.transform = originalTransform
-    node.style.width = ''
 
     const link = document.createElement('a')
     link.download = `${MemeName.value}展示图.png`
-    toast.success('成功创建下载任务')
     link.href = dataUrl
     link.click()
-
+    toast.success('成功创建下载任务')
   } catch (error) {
-    toast.error('生成图片失败，请稍后重试', error)
+    toast.error('生成图片失败，请稍后重试')
     console.error('生成图片失败:', error)
-    // 恢复样式，即使出错也要确保界面正常
-    node.style.transform = contentStyle.value.transform
-    node.style.width = contentStyle.value.width
   }
 }
 </script>
@@ -395,11 +410,9 @@ const downloadImage = async () => {
 
 .preview-wrapper {
   display: inline-block;
-  /* 使用inline-block以适应内容尺寸 */
 }
 
 .preview-content {
   display: block;
-  /* transform缩放不会改变布局空间，需要手动调整 */
 }
 </style>
